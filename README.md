@@ -71,10 +71,10 @@ The project now includes a dedicated Swagger Gateway service that provides unifi
 
 - **Combined OpenAPI**: `http://localhost:8080/v3/api-docs`
 - **Individual Service Specs**:
-  - Items: `http://localhost:8080/items/v3/api-docs`
-  - Orders: `http://localhost:8080/orders/v3/api-docs`
-  - Users: `http://localhost:8080/users/v3/api-docs`
-  - Auth: `http://localhost:8080/auth/v3/api-docs`
+  - Items: `http://localhost:8080/docs/items`
+  - Orders: `http://localhost:8080/docs/orders`
+  - Users: `http://localhost:8080/docs/users`
+  - Auth: `http://localhost:8080/docs/auth`
 
 #### ✅ Key Benefits of Swagger Gateway
 
@@ -83,22 +83,23 @@ The project now includes a dedicated Swagger Gateway service that provides unifi
 - **Consistent Interface**: Unified look and feel across all services
 - **Easy Testing**: Test APIs from all services in one interface
 - **Development Efficiency**: No need to remember multiple documentation URLs
+- **CORS Fixed**: Proper CORS handling for all documentation endpoints
 
 ### Health Check Endpoints
 
 - **NGINX Health**: `http://localhost:8080/health`
 - **Swagger Gateway**: `http://localhost:8080/health` (via gateway controller)
-- **Individual Services**:
-  - Items: `http://localhost:8080/api/items/health`
-  - Orders: `http://localhost:8080/api/orders/health`
-  - Users: `http://localhost:8080/api/users/health`
-  - Auth: `http://localhost:8080/api/auth/health`
+- **Individual Services Health**: Available through the centralized gateway
 
 ### 🚀 Getting Started with API Testing
 
 1. **Start the services**: `docker-compose up --build`
 2. **Open Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
-3. **Select a service** from the dropdown (Items, Orders, Users, Auth)
+3. **Test individual service docs**:
+   - Items Service: `http://localhost:8080/docs/items`
+   - Orders Service: `http://localhost:8080/docs/orders`
+   - Users Service: `http://localhost:8080/docs/users`
+   - Auth Service: `http://localhost:8080/docs/auth`
 4. **Try the APIs** directly from the interface
 
 ## API Endpoints
@@ -315,31 +316,37 @@ The Swagger Gateway service automatically discovers and aggregates all microserv
 
 ### Common Issues
 
-1. **Swagger Gateway Not Loading**:
+1. **CORS Errors Fixed**:
+
+   - **Solution**: Updated NGINX and Swagger Gateway with proper CORS headers
+   - All API documentation now served through `/docs/{service}` endpoints
+   - Cross-origin requests properly handled
+
+2. **Swagger Gateway Not Loading**:
 
    - **Solution**: Ensure all microservices are running and healthy
    - Check service logs: `docker-compose logs swagger-gateway`
    - Verify NGINX routing: `docker-compose logs nginx`
    - Test individual service APIs first
 
-2. **"Failed to load remote configuration" in Swagger**:
+3. **"Failed to load remote configuration" - FIXED**:
 
-   - **Fixed**: Now handled by dedicated Swagger Gateway service
-   - If still occurring, wait for all services to start: `docker-compose ps`
-   - Check network connectivity between services
+   - **New**: OpenAPI specs now served through dedicated proxy endpoints
+   - Use `/docs/{service}` URLs instead of direct service URLs
+   - Server-side aggregation eliminates browser CORS issues
 
-3. **Service not responding**:
+4. **Service not responding**:
 
    - Ensure you're using `http://localhost:8080` (not just `localhost`)
    - Check all containers are running: `docker-compose ps`
    - Verify service health endpoints
 
-4. **Port conflicts**:
+5. **Port conflicts**:
 
    - Ensure port 8080 is available
    - Check if any other services are using ports 8081-8085
 
-5. **Database connection errors**:
+6. **Database connection errors**:
    - Wait for PostgreSQL containers to fully start (health checks help)
    - Check database logs: `docker-compose logs items-db`
 
@@ -352,11 +359,11 @@ curl http://localhost:8080/health
 # Test OpenAPI aggregation
 curl http://localhost:8080/v3/api-docs
 
-# Test individual service specs through gateway
-curl http://localhost:8080/items/v3/api-docs
-curl http://localhost:8080/orders/v3/api-docs
-curl http://localhost:8080/users/v3/api-docs
-curl http://localhost:8080/auth/v3/api-docs
+# Test individual service specs through gateway (CORS-free)
+curl http://localhost:8080/docs/items
+curl http://localhost:8080/docs/orders
+curl http://localhost:8080/docs/users
+curl http://localhost:8080/docs/auth
 ```
 
 ### Logs
@@ -451,6 +458,13 @@ s:\Studia\Rok_03\Semestr_6\Projekty\Zaliczenie_Java\
 ```
 
 ## 🎯 Key Improvements in This Version
+
+### Fixed CORS Issues
+
+- **Proper CORS Headers**: Added comprehensive CORS configuration to NGINX
+- **Server-side Proxy**: OpenAPI specs served through Swagger Gateway
+- **Browser Compatibility**: Eliminated cross-origin errors in Swagger UI
+- **Preflight Handling**: Proper OPTIONS request handling
 
 ### Centralized Documentation
 

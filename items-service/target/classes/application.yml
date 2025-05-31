@@ -28,6 +28,17 @@ springdoc:
       - name: items-service
         url: /v3/api-docs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  server:
+    port: 8081
+
 ---
 spring:
   config:
@@ -41,3 +52,14 @@ springdoc:
     urls:
       - name: items-service
         url: /items/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  server:
+    port: 8081
