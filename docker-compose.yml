@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # Databases
+  items-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: items_db
+      POSTGRES_USER: items_user
+      POSTGRES_PASSWORD: items_pass
+    volumes:
+      - items_db_data:/var/lib/postgresql/data
+    networks:
+      - warehouse-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U items_user -d items_db']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  orders-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+    volumes:
+      - orders_db_data:/var/lib/postgresql/data
+    networks:
+      - warehouse-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U orders_user -d orders_db']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  users-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: users_user
+      POSTGRES_PASSWORD: users_pass
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    networks:
+      - warehouse-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U users_user -d users_db']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Microservices
+  items-service:
+    build: ./items-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      items-db:
+        condition: service_healthy
+    networks:
+      - warehouse-network
+    restart: unless-stopped
+
+  orders-service:
+    build: ./orders-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      orders-db:
+        condition: service_healthy
+      items-service:
+        condition: service_started
+    networks:
+      - warehouse-network
+    restart: unless-stopped
+
+  users-service:
+    build: ./users-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      users-db:
+        condition: service_healthy
+    networks:
+      - warehouse-network
+    restart: unless-stopped
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      users-service:
+        condition: service_started
+    networks:
+      - warehouse-network
+    restart: unless-stopped
+
+  # Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '8080:80'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - items-service
+      - orders-service
+      - users-service
+      - auth-service
+    networks:
+      - warehouse-network
+    restart: unless-stopped
+
+volumes:
+  items_db_data:
+  orders_db_data:
+  users_db_data:
+
+networks:
+  warehouse-network:
+    driver: bridge

@@ -1,0 +1,22 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: auth-service
+
+jwt:
+  secret: mySecretKey123456789012345678901234567890
+  expiration: 86400000
+
+users-service:
+  url: http://localhost:8083
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+users-service:
+  url: http://users-service:8083
