@@ -98,13 +98,13 @@ public class GatewayController {
     private String getServiceUrl(String service) {
         switch (service.toLowerCase()) {
             case "items":
-                return "http://items-service:8081";
+                return "http://items-service:8081/v3/api-docs";
             case "orders":
-                return "http://orders-service:8082";
+                return "http://orders-service:8082/v3/api-docs";
             case "users":
-                return "http://users-service:8083";
+                return "http://users-service:8083/v3/api-docs";
             case "auth":
-                return "http://auth-service:8084";
+                return "http://auth-service:8084/v3/api-docs";
             default:
                 return null;
         }

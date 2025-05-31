@@ -35,16 +35,16 @@ springdoc:
   swagger-ui:
     urls:
       - name: Items Service
-        url: http://nginx/items/v3/api-docs
+        url: /items/v3/api-docs
       - name: Orders Service
-        url: http://nginx/orders/v3/api-docs
+        url: /orders/v3/api-docs
       - name: Users Service
-        url: http://nginx/users/v3/api-docs
+        url: /users/v3/api-docs
       - name: Auth Service
-        url: http://nginx/auth/v3/api-docs
+        url: /auth/v3/api-docs
 
 microservices:
-  items-service: http://nginx
-  orders-service: http://nginx
-  users-service: http://nginx
-  auth-service: http://nginx
+  items-service: http://items-service:8081
+  orders-service: http://orders-service:8082
+  users-service: http://users-service:8083
+  auth-service: http://auth-service:8084
