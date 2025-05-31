@@ -1,396 +1,243 @@
-# Warehouse Management System - Microservices Architecture
+# Warehouse Management Microservices
 
-A complete Spring Boot-based microservice architecture for warehouse management with JWT authentication, PostgreSQL databases, and NGINX reverse proxy.
+A complete Spring Boot microservices architecture for warehouse management with Docker Compose, PostgreSQL databases, JWT authentication, NGINX reverse proxy, and centralized Swagger documentation.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
-The system consists of 4 microservices:
+This project consists of 5 microservices:
 
-- **Items Service** (Port 8081) - Inventory management
-- **Orders Service** (Port 8082) - Order processing
-- **Users Service** (Port 8083) - User management
-- **Auth Service** (Port 8084) - Authentication & JWT handling
+- **Items Service** (Port 8081) - Manages warehouse inventory
+- **Orders Service** (Port 8082) - Manages orders and communicates with Items service
+- **Users Service** (Port 8083) - Manages user profiles and roles
+- **Auth Service** (Port 8084) - Handles authentication and JWT token generation
+- **Swagger Gateway** (Port 8085) - Centralized API documentation aggregator
 
-All services are accessible through NGINX reverse proxy on port 8080.
+## Tech Stack
 
-## 🚀 Quick Start
+- **Framework**: Spring Boot 3.1.0
+- **Database**: PostgreSQL 15
+- **Authentication**: JWT (JSON Web Tokens)
+- **Reverse Proxy**: NGINX
+- **Containerization**: Docker & Docker Compose
+- **Documentation**: Centralized Swagger/OpenAPI 3 Gateway
+- **Build Tool**: Maven
+
+## Quick Start
 
 ### Prerequisites
 
 - Docker & Docker Compose
 - Java 17+ (for local development)
-- Maven 3.8+ (for local development)
+- Maven 3.6+ (for local development)
 
-### Running the System
+### Running with Docker Compose
 
 ```bash
 # Clone and navigate to project directory
 cd s:\Studia\Rok_03\Semestr_6\Projekty\Zaliczenie_Java
 
-# Start all services
+# Build and start all services
 docker-compose up --build
 
-# Services will be available at:
-# http://localhost:8080/api/items/
-# http://localhost:8080/api/orders/
-# http://localhost:8080/api/users/
-# http://localhost:8080/api/auth/
+# Or run in detached mode
+docker-compose up -d --build
 ```
 
-### Stopping the System
+### Accessing Services
+
+All services are accessible through NGINX reverse proxy on `http://localhost:8080`:
+
+- **Centralized API Documentation**: `http://localhost:8080/swagger-ui/index.html` ⭐ **PRIMARY ACCESS POINT**
+- **API Overview**: `http://localhost:8080/` (redirects to Swagger UI)
+- **Items API**: `http://localhost:8080/api/items/`
+- **Orders API**: `http://localhost:8080/api/orders/`
+- **Users API**: `http://localhost:8080/api/users/`
+- **Auth API**: `http://localhost:8080/api/auth/`
+
+### 📚 API Documentation
+
+**NEW: Centralized Swagger Gateway**
+
+The project now includes a dedicated Swagger Gateway service that provides unified documentation for all microservices:
+
+#### 🎯 Primary Documentation Access
+
+- **Unified Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+  - Interactive documentation for all services in one place
+  - Service selection dropdown for easy navigation
+  - Unified API testing interface
+
+#### 📋 API Specifications
+
+- **Combined OpenAPI**: `http://localhost:8080/v3/api-docs`
+- **Individual Service Specs**:
+  - Items: `http://localhost:8080/items/v3/api-docs`
+  - Orders: `http://localhost:8080/orders/v3/api-docs`
+  - Users: `http://localhost:8080/users/v3/api-docs`
+  - Auth: `http://localhost:8080/auth/v3/api-docs`
+
+#### ✅ Key Benefits of Swagger Gateway
+
+- **Single Entry Point**: One URL for all API documentation
+- **Service Discovery**: Automatically aggregates all microservice APIs
+- **Consistent Interface**: Unified look and feel across all services
+- **Easy Testing**: Test APIs from all services in one interface
+- **Development Efficiency**: No need to remember multiple documentation URLs
+
+### Health Check Endpoints
+
+- **NGINX Health**: `http://localhost:8080/health`
+- **Swagger Gateway**: `http://localhost:8080/health` (via gateway controller)
+- **Individual Services**:
+  - Items: `http://localhost:8080/api/items/health`
+  - Orders: `http://localhost:8080/api/orders/health`
+  - Users: `http://localhost:8080/api/users/health`
+  - Auth: `http://localhost:8080/api/auth/health`
+
+### 🚀 Getting Started with API Testing
+
+1. **Start the services**: `docker-compose up --build`
+2. **Open Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+3. **Select a service** from the dropdown (Items, Orders, Users, Auth)
+4. **Try the APIs** directly from the interface
+
+## API Endpoints
+
+### Auth Service (`/api/auth/`)
+
+| Method | Endpoint    | Description          |
+| ------ | ----------- | -------------------- |
+| POST   | `/login`    | User login           |
+| POST   | `/register` | User registration    |
+| POST   | `/validate` | JWT token validation |
+
+### Users Service (`/api/users/`)
+
+| Method | Endpoint               | Description          |
+| ------ | ---------------------- | -------------------- |
+| GET    | `/`                    | Get all users        |
+| GET    | `/{id}`                | Get user by ID       |
+| GET    | `/username/{username}` | Get user by username |
+| POST   | `/`                    | Create new user      |
+| PUT    | `/{id}`                | Update user          |
+| DELETE | `/{id}`                | Delete user          |
+
+### Items Service (`/api/items/`)
+
+| Method | Endpoint | Description     |
+| ------ | -------- | --------------- |
+| GET    | `/`      | Get all items   |
+| GET    | `/{id}`  | Get item by ID  |
+| POST   | `/`      | Create new item |
+| PUT    | `/{id}`  | Update item     |
+| DELETE | `/{id}`  | Delete item     |
+
+### Orders Service (`/api/orders/`)
+
+| Method | Endpoint | Description                              |
+| ------ | -------- | ---------------------------------------- |
+| GET    | `/`      | Get all orders                           |
+| GET    | `/{id}`  | Get order by ID                          |
+| POST   | `/`      | Create new order (validates item exists) |
+| PUT    | `/{id}`  | Update order                             |
+| DELETE | `/{id}`  | Delete order                             |
+
+## Sample API Usage
+
+### 1. Test service availability
 
 ```bash
-docker-compose down
+# Check API overview (redirects to Swagger)
+curl http://localhost:8080/
+
+# Check Swagger Gateway health
+curl http://localhost:8080/health
+
+# Test individual services
+curl http://localhost:8080/api/auth/health
+curl http://localhost:8080/api/items/health
 ```
 
-## 📋 API Documentation
+### 2. Using Swagger UI (Recommended)
 
-### 🔐 Auth Service (/api/auth/)
+1. Open `http://localhost:8080/swagger-ui/index.html`
+2. Select "Auth Service" from dropdown
+3. Use the `/api/auth/register` endpoint to create a user
+4. Use the `/api/auth/login` endpoint to get a JWT token
+5. Switch to "Items Service" and create items
+6. Switch to "Orders Service" and create orders
 
-Authentication service that handles JWT token generation and user registration/login.
+### 3. Register a new user (via curl)
 
-#### Endpoints
-
-**POST /api/auth/register**
-
-- **Description**: Register a new user
-- **Request Body**:
-
-```json
-{
-  "username": "john_doe",
-  "password": "password123",
-  "email": "john@example.com",
-  "role": "USER"
-}
-```
-
-- **Response**:
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "john_doe",
-  "role": "USER"
-}
-```
-
-**POST /api/auth/login**
-
-- **Description**: Authenticate user and get JWT token
-- **Request Body**:
-
-```json
-{
-  "username": "john_doe",
-  "password": "password123"
-}
-```
-
-- **Response**:
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "john_doe",
-  "role": "USER"
-}
-```
-
-**POST /api/auth/validate**
-
-- **Description**: Validate JWT token
-- **Request Body**:
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "username": "john_doe"
-}
-```
-
-- **Response**: `true` or `false`
-
-### 👥 Users Service (/api/users/)
-
-User management service with CRUD operations for user profiles.
-
-#### Endpoints
-
-**GET /api/users/**
-
-- **Description**: Get all users
-- **Response**:
-
-```json
-[
-  {
-    "id": 1,
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
     "username": "john_doe",
+    "password": "password123",
     "email": "john@example.com",
-    "role": "USER",
-    "password": "[ENCRYPTED]"
-  }
-]
+    "role": "USER"
+  }'
 ```
 
-**GET /api/users/{id}**
+### 4. Login and get JWT token
 
-- **Description**: Get user by ID
-- **Response**: User object or 404 if not found
-
-**GET /api/users/username/{username}**
-
-- **Description**: Get user by username
-- **Response**: User object or 404 if not found
-
-**POST /api/users/**
-
-- **Description**: Create new user
-- **Request Body**:
-
-```json
-{
-  "username": "jane_doe",
-  "password": "password123",
-  "email": "jane@example.com",
-  "role": "ADMIN"
-}
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "john_doe",
+    "password": "password123"
+  }'
 ```
 
-**PUT /api/users/{id}**
+### 5. Create an item
 
-- **Description**: Update user
-- **Request Body**: User object with updated fields
-
-**DELETE /api/users/{id}**
-
-- **Description**: Delete user
-- **Response**: 200 OK or 404 if not found
-
-### 📦 Items Service (/api/items/)
-
-Inventory management service for warehouse items.
-
-#### Endpoints
-
-**GET /api/items/**
-
-- **Description**: Get all items
-- **Response**:
-
-```json
-[
-  {
-    "id": 1,
+```bash
+curl -X POST http://localhost:8080/api/items/ \
+  -H "Content-Type: application/json" \
+  -d '{
     "name": "Laptop",
-    "description": "Gaming laptop with RTX 4070",
-    "quantity": 50,
-    "price": 1299.99
-  }
-]
+    "description": "Dell Laptop",
+    "quantity": 10,
+    "price": 999.99
+  }'
 ```
 
-**GET /api/items/{id}**
+### 6. Create an order
 
-- **Description**: Get item by ID
-- **Response**: Item object or 404 if not found
-
-**POST /api/items/**
-
-- **Description**: Create new item
-- **Request Body**:
-
-```json
-{
-  "name": "Smartphone",
-  "description": "Latest model smartphone",
-  "quantity": 100,
-  "price": 899.99
-}
-```
-
-**PUT /api/items/{id}**
-
-- **Description**: Update item
-- **Request Body**: Item object with updated fields
-
-**DELETE /api/items/{id}**
-
-- **Description**: Delete item
-- **Response**: 200 OK or 404 if not found
-
-### 🛒 Orders Service (/api/orders/)
-
-Order management service that communicates with Items service for validation.
-
-#### Endpoints
-
-**GET /api/orders/**
-
-- **Description**: Get all orders
-- **Response**:
-
-```json
-[
-  {
-    "id": 1,
+```bash
+curl -X POST http://localhost:8080/api/orders/ \
+  -H "Content-Type: application/json" \
+  -d '{
     "itemId": 1,
     "quantity": 2,
-    "status": "PENDING",
-    "orderDate": "2024-01-15T10:30:00",
     "userId": 1
-  }
-]
+  }'
 ```
 
-**GET /api/orders/{id}**
+## Database Configuration
 
-- **Description**: Get order by ID
-- **Response**: Order object or 404 if not found
+Each service has its own PostgreSQL database:
 
-**POST /api/orders/**
+- **items-db**: `items_db` database with user `items_user`
+- **orders-db**: `orders_db` database with user `orders_user`
+- **users-db**: `users_db` database with user `users_user`
 
-- **Description**: Create new order (validates item exists)
-- **Request Body**:
+Database schemas are automatically created using JPA/Hibernate DDL auto-generation.
 
-```json
-{
-  "itemId": 1,
-  "quantity": 3,
-  "userId": 1
-}
-```
+## Service Communication
 
-- **Note**: Status is automatically set to "PENDING", orderDate is set to current timestamp
+- **Orders Service** → **Items Service**: REST API calls to validate items
+- **Auth Service** → **Users Service**: REST API calls for user authentication
+- **Swagger Gateway** → **All Services**: Aggregates OpenAPI specifications
+- All inter-service communication uses internal Docker network
 
-**PUT /api/orders/{id}**
-
-- **Description**: Update order
-- **Request Body**:
-
-```json
-{
-  "status": "COMPLETED",
-  "quantity": 2
-}
-```
-
-**DELETE /api/orders/{id}**
-
-- **Description**: Delete order
-- **Response**: 200 OK or 404 if not found
-
-## 🏢 System Architecture
-
-### Service Communication
-
-- **Auth Service** ↔ **Users Service**: REST API calls for user validation
-- **Orders Service** ↔ **Items Service**: REST API calls for item validation
-- **NGINX** → All services: Reverse proxy routing
-
-### Database Schema
-
-#### Users Database (users_db)
-
-```sql
-Table: users
-- id (BIGSERIAL PRIMARY KEY)
-- username (VARCHAR UNIQUE NOT NULL)
-- password (VARCHAR NOT NULL) -- BCrypt encrypted
-- email (VARCHAR NOT NULL)
-- role (VARCHAR NOT NULL)
-```
-
-#### Items Database (items_db)
-
-```sql
-Table: items
-- id (BIGSERIAL PRIMARY KEY)
-- name (VARCHAR NOT NULL)
-- description (VARCHAR NOT NULL)
-- quantity (INTEGER NOT NULL)
-- price (DECIMAL NOT NULL)
-```
-
-#### Orders Database (orders_db)
-
-```sql
-Table: orders
-- id (BIGSERIAL PRIMARY KEY)
-- item_id (BIGINT NOT NULL)
-- quantity (INTEGER NOT NULL)
-- status (VARCHAR NOT NULL)
-- order_date (TIMESTAMP NOT NULL)
-- user_id (BIGINT NOT NULL)
-```
-
-## 🔧 Configuration
-
-### Environment Profiles
-
-- **Local**: Uses localhost database connections
-- **Docker**: Uses container service names for database connections
-
-### Security
-
-- **JWT Token**: 24-hour expiration, HS256 algorithm
-- **Password Encryption**: BCrypt with default strength
-- **CORS**: Not configured (add if needed for frontend)
-
-### Database Configuration
-
-Each service connects to its own PostgreSQL database:
-
-- Items Service: `items-db:5432/items_db`
-- Orders Service: `orders-db:5432/orders_db`
-- Users Service: `users-db:5432/users_db`
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-s:\Studia\Rok_03\Semestr_6\Projekty\Zaliczenie_Java\
-├── docker-compose.yml
-├── nginx.conf
-├── README.md
-├── items-service/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/main/java/com/warehouse/items/
-│       ├── ItemsServiceApplication.java
-│       ├── controller/ItemController.java
-│       ├── entity/Item.java
-│       └── repository/ItemRepository.java
-├── orders-service/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/main/java/com/warehouse/orders/
-│       ├── OrdersServiceApplication.java
-│       ├── controller/OrderController.java
-│       ├── entity/Order.java
-│       └── repository/OrderRepository.java
-├── users-service/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/main/java/com/warehouse/users/
-│       ├── UsersServiceApplication.java
-│       ├── controller/UserController.java
-│       ├── entity/User.java
-│       └── repository/UserRepository.java
-└── auth-service/
-    ├── Dockerfile
-    ├── pom.xml
-    └── src/main/java/com/warehouse/auth/
-        ├── AuthServiceApplication.java
-        ├── controller/AuthController.java
-        ├── dto/AuthResponse.java
-        ├── dto/LoginRequest.java
-        └── util/JwtUtil.java
-```
+## Development
 
 ### Running Individual Services Locally
+
+Each service can be run independently for development:
 
 ```bash
 # Items Service
@@ -408,6 +255,10 @@ mvn spring-boot:run
 # Auth Service
 cd auth-service
 mvn spring-boot:run
+
+# Swagger Gateway
+cd swagger-gateway
+mvn spring-boot:run
 ```
 
 ### Building Services
@@ -418,116 +269,215 @@ docker-compose build
 
 # Build specific service
 docker-compose build items-service
+docker-compose build swagger-gateway
 ```
 
-## 📝 Example Usage Workflow
+## Configuration
 
-### 1. Register a User
+### Environment Variables
 
-```bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "warehouse_admin",
-    "password": "admin123",
-    "email": "admin@warehouse.com",
-    "role": "ADMIN"
-  }'
-```
+Services support different profiles:
 
-### 2. Login and Get Token
+- `default`: Local development with localhost databases
+- `docker`: Docker environment with service discovery
 
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "warehouse_admin",
-    "password": "admin123"
-  }'
-```
+### JWT Configuration
 
-### 3. Create an Item
+JWT tokens are configured in `auth-service` with:
 
-```bash
-curl -X POST http://localhost:8080/api/items/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Warehouse Robot",
-    "description": "Automated warehouse robot for inventory management",
-    "quantity": 5,
-    "price": 25000.00
-  }'
-```
+- Secret key: Configurable via `jwt.secret`
+- Expiration: 24 hours (configurable via `jwt.expiration`)
 
-### 4. Create an Order
+### Swagger Gateway Configuration
 
-```bash
-curl -X POST http://localhost:8080/api/orders/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "itemId": 1,
-    "quantity": 1,
-    "userId": 1
-  }'
-```
+The Swagger Gateway service automatically discovers and aggregates all microservice APIs:
 
-## 🐛 Troubleshooting
+- Configured via `application.yml` in swagger-gateway service
+- URLs are environment-aware (localhost for dev, internal network for Docker)
+- Provides unified interface for all service documentation
+
+## Monitoring and Health Checks
+
+- **Centralized Documentation**: Swagger Gateway at `http://localhost:8080/swagger-ui/index.html`
+- **NGINX Health**: `http://localhost:8080/health`
+- **Individual Service Health**: Available via `/api/{service}/health` endpoints
+- **Docker Health Checks**: PostgreSQL databases include health checks
+- **Service Dependencies**: Services start in proper dependency order
+
+## Security
+
+- Passwords are encrypted using BCrypt
+- JWT tokens for stateless authentication
+- CORS enabled for cross-origin requests
+- Input validation on all endpoints
+
+## Troubleshooting
 
 ### Common Issues
 
-**Services not starting:**
+1. **Swagger Gateway Not Loading**:
 
-- Check if ports 8080-8084 are available
-- Verify Docker is running
-- Check logs: `docker-compose logs [service-name]`
+   - **Solution**: Ensure all microservices are running and healthy
+   - Check service logs: `docker-compose logs swagger-gateway`
+   - Verify NGINX routing: `docker-compose logs nginx`
+   - Test individual service APIs first
 
-**Database connection errors:**
+2. **"Failed to load remote configuration" in Swagger**:
 
-- Wait for database health checks to pass
-- Check database credentials in docker-compose.yml
+   - **Fixed**: Now handled by dedicated Swagger Gateway service
+   - If still occurring, wait for all services to start: `docker-compose ps`
+   - Check network connectivity between services
 
-**JWT Token issues:**
+3. **Service not responding**:
 
-- Verify token is included in requests
-- Check token expiration (24 hours)
-- Validate secret key configuration
+   - Ensure you're using `http://localhost:8080` (not just `localhost`)
+   - Check all containers are running: `docker-compose ps`
+   - Verify service health endpoints
+
+4. **Port conflicts**:
+
+   - Ensure port 8080 is available
+   - Check if any other services are using ports 8081-8085
+
+5. **Database connection errors**:
+   - Wait for PostgreSQL containers to fully start (health checks help)
+   - Check database logs: `docker-compose logs items-db`
+
+### Testing Swagger Gateway
+
+```bash
+# Test Swagger Gateway service
+curl http://localhost:8080/health
+
+# Test OpenAPI aggregation
+curl http://localhost:8080/v3/api-docs
+
+# Test individual service specs through gateway
+curl http://localhost:8080/items/v3/api-docs
+curl http://localhost:8080/orders/v3/api-docs
+curl http://localhost:8080/users/v3/api-docs
+curl http://localhost:8080/auth/v3/api-docs
+```
 
 ### Logs
 
 ```bash
-# View all logs
+# View all service logs
 docker-compose logs
 
 # View specific service logs
+docker-compose logs swagger-gateway
 docker-compose logs items-service
-docker-compose logs auth-service
+docker-compose logs -f orders-service
+
+# View NGINX logs
+docker-compose logs nginx
 ```
 
-## 🚀 Deployment Notes
+### Stopping Services
 
-### Production Considerations
+```bash
+# Stop all services
+docker-compose down
 
-1. **Security**: Change default passwords and JWT secret
-2. **SSL/TLS**: Configure HTTPS in NGINX
-3. **Database**: Use managed PostgreSQL service
-4. **Monitoring**: Add health checks and metrics
-5. **Scaling**: Configure replicas in docker-compose
+# Stop and remove volumes
+docker-compose down -v
+```
 
-### Environment Variables
+### Debugging Steps
 
-Consider externalizing configuration:
+1. **Check if all containers are running:**
 
-- Database credentials
-- JWT secret key
-- Service URLs
-- CORS settings
+   ```bash
+   docker-compose ps
+   ```
 
-## 📄 License
+2. **Test Swagger Gateway:**
 
-This project is created for educational purposes as part of university coursework.
+   ```bash
+   curl http://localhost:8080/swagger-ui/index.html
+   curl http://localhost:8080/health
+   ```
 
----
+3. **Check API availability:**
 
-**Author**: Student Project  
-**Course**: Rok_03\Semestr_6\Projekty\Zaliczenie_Java  
-**Technology Stack**: Spring Boot, PostgreSQL, Docker, NGINX, JWT
+   ```bash
+   curl http://localhost:8080/api/items/health
+   curl http://localhost:8080/api/orders/health
+   ```
+
+4. **Test service connectivity:**
+
+   ```bash
+   # Test if services can reach each other
+   docker-compose exec orders-service curl http://items-service:8081/api/items/health
+   docker-compose exec swagger-gateway curl http://nginx/items/v3/api-docs
+   ```
+
+5. **Restart services if needed:**
+   ```bash
+   docker-compose restart
+   # Or restart specific service
+   docker-compose restart swagger-gateway
+   ```
+
+## Project Structure
+
+```
+s:\Studia\Rok_03\Semestr_6\Projekty\Zaliczenie_Java\
+├── docker-compose.yml
+├── nginx.conf
+├── README.md
+├── items-service/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/warehouse/items/
+├── orders-service/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/warehouse/orders/
+├── users-service/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/warehouse/users/
+├── auth-service/
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/warehouse/auth/
+└── swagger-gateway/          ⭐ NEW
+    ├── Dockerfile
+    ├── pom.xml
+    └── src/main/java/com/warehouse/swagger/
+```
+
+## 🎯 Key Improvements in This Version
+
+### Centralized Documentation
+
+- **Unified Swagger UI**: Single access point for all API documentation
+- **Automatic Service Discovery**: Gateway automatically aggregates all microservice APIs
+- **Improved UX**: Better developer experience with centralized documentation
+- **Reduced Complexity**: No need to manage multiple Swagger instances
+
+### Enhanced Architecture
+
+- **Dedicated Documentation Service**: Swagger Gateway as independent microservice
+- **Better Service Separation**: Documentation concerns separated from business logic
+- **Scalable Design**: Easy to add new services to documentation
+
+### Improved Reliability
+
+- **Health Checks**: Comprehensive health monitoring for all services
+- **Service Dependencies**: Proper startup ordering with health checks
+- **Error Handling**: Better error handling and troubleshooting guidance
+
+## Contributing
+
+1. Create feature branch
+2. Add tests for new functionality
+3. Update documentation
+4. Submit pull request
+
+## License
+
+This project is for educational purposes as part of Java coursework.

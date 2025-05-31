@@ -3,6 +3,9 @@ package com.warehouse.auth.controller;
 import com.warehouse.auth.dto.AuthResponse;
 import com.warehouse.auth.dto.LoginRequest;
 import com.warehouse.auth.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
+@Tag(name = "Authentication", description = "Authentication and JWT token management")
 public class AuthController {
     
     @Autowired
@@ -31,6 +35,8 @@ public class AuthController {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     @GetMapping("/health")
+    @Operation(summary = "Health check", description = "Check if the auth service is running")
+    @ApiResponse(responseCode = "200", description = "Service is healthy")
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> response = new HashMap<>();
         response.put("status", "UP");
@@ -39,6 +45,9 @@ public class AuthController {
     }
     
     @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticate user and return JWT token")
+    @ApiResponse(responseCode = "200", description = "Login successful")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
             // Get user from Users service
@@ -62,6 +71,9 @@ public class AuthController {
     }
     
     @PostMapping("/register")
+    @Operation(summary = "User registration", description = "Register new user and return JWT token")
+    @ApiResponse(responseCode = "200", description = "Registration successful")
+    @ApiResponse(responseCode = "400", description = "Registration failed")
     public ResponseEntity<AuthResponse> register(@RequestBody Map<String, String> registerRequest) {
         try {
             // Create user via Users service
@@ -83,6 +95,8 @@ public class AuthController {
     }
     
     @PostMapping("/validate")
+    @Operation(summary = "Validate JWT token", description = "Validate if JWT token is valid")
+    @ApiResponse(responseCode = "200", description = "Token validation result")
     public ResponseEntity<Boolean> validateToken(@RequestBody Map<String, String> request) {
         try {
             String token = request.get("token");

@@ -12,12 +12,6 @@ services:
       - items_db_data:/var/lib/postgresql/data
     networks:
       - warehouse-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U items_user -d items_db']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   orders-db:
     image: postgres:15
@@ -29,12 +23,6 @@ services:
       - orders_db_data:/var/lib/postgresql/data
     networks:
       - warehouse-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U orders_user -d orders_db']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   users-db:
     image: postgres:15
@@ -46,77 +34,45 @@ services:
       - users_db_data:/var/lib/postgresql/data
     networks:
       - warehouse-network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U users_user -d users_db']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
   # Microservices
   items-service:
-    build:
-      context: ./items-service
-      dockerfile: Dockerfile
+    build: ./items-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      items-db:
-        condition: service_healthy
+      - items-db
     networks:
       - warehouse-network
     restart: on-failure
 
   orders-service:
-    build:
-      context: ./orders-service
-      dockerfile: Dockerfile
+    build: ./orders-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      orders-db:
-        condition: service_healthy
+      - orders-db
+      - items-service
     networks:
       - warehouse-network
     restart: on-failure
 
   users-service:
-    build:
-      context: ./users-service
-      dockerfile: Dockerfile
+    build: ./users-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      users-db:
-        condition: service_healthy
+      - users-db
     networks:
       - warehouse-network
     restart: on-failure
 
   auth-service:
-    build:
-      context: ./auth-service
-      dockerfile: Dockerfile
+    build: ./auth-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - users-service
-    networks:
-      - warehouse-network
-    restart: on-failure
-
-  # Swagger Gateway Service
-  swagger-gateway:
-    build:
-      context: ./swagger-gateway
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    depends_on:
-      - items-service
-      - orders-service
-      - users-service
-      - auth-service
     networks:
       - warehouse-network
     restart: on-failure
@@ -133,10 +89,8 @@ services:
       - orders-service
       - users-service
       - auth-service
-      - swagger-gateway
     networks:
       - warehouse-network
-    restart: on-failure
 
 volumes:
   items_db_data:

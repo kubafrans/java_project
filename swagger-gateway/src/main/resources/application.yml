@@ -1,0 +1,50 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: swagger-gateway
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - name: Items Service
+        url: http://localhost:8080/items/v3/api-docs
+      - name: Orders Service
+        url: http://localhost:8080/orders/v3/api-docs
+      - name: Users Service
+        url: http://localhost:8080/users/v3/api-docs
+      - name: Auth Service
+        url: http://localhost:8080/auth/v3/api-docs
+
+microservices:
+  items-service: http://localhost:8080
+  orders-service: http://localhost:8080
+  users-service: http://localhost:8080
+  auth-service: http://localhost:8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Items Service
+        url: http://nginx/items/v3/api-docs
+      - name: Orders Service
+        url: http://nginx/orders/v3/api-docs
+      - name: Users Service
+        url: http://nginx/users/v3/api-docs
+      - name: Auth Service
+        url: http://nginx/auth/v3/api-docs
+
+microservices:
+  items-service: http://nginx
+  orders-service: http://nginx
+  users-service: http://nginx
+  auth-service: http://nginx

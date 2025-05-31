@@ -17,6 +17,17 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls-primary-name: items-service
+    urls:
+      - name: items-service
+        url: /v3/api-docs
+
 ---
 spring:
   config:
@@ -24,3 +35,9 @@ spring:
       on-profile: docker
   datasource:
     url: jdbc:postgresql://items-db:5432/items_db
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: items-service
+        url: /items/v3/api-docs
