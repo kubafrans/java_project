@@ -1,0 +1,39 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: auth-service
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls-primary-name: auth-service
+    urls:
+      - name: auth-service
+        url: /v3/api-docs
+
+jwt:
+  secret: mySecretKey123456789012345678901234567890
+  expiration: 86400000
+
+users-service:
+  url: http://localhost:8083
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: auth-service
+        url: /auth/v3/api-docs
+
+users-service:
+  url: http://users-service:8083
