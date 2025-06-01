@@ -19,7 +19,8 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
 function ProtectedRoute({ children }) {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
+  if (loading) return null; // or a loading spinner
   return token ? children : <Navigate to="/login" />;
 }
 
