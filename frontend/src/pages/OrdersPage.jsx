@@ -24,6 +24,13 @@ export default function OrdersPage() {
     quantity: '',
     userId: '',
   });
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    itemId: '',
+    quantity: '',
+    userId: '',
+    status: '',
+  });
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -46,6 +53,10 @@ export default function OrdersPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     setError('');
@@ -57,9 +68,11 @@ export default function OrdersPage() {
       await axios.post(
         'http://localhost/api/orders',
         {
-          ...form,
-          quantity: Number(form.quantity),
+          id: 0,
           itemId: Number(form.itemId),
+          quantity: Number(form.quantity),
+          status: 'NEW',
+          orderDate: new Date().toISOString(),
           userId: Number(form.userId),
         },
         {
@@ -81,6 +94,60 @@ export default function OrdersPage() {
       fetchOrders();
     } catch {
       setError('Failed to delete order');
+    }
+  };
+
+  const handleEdit = (order) => {
+    setEditId(order.id);
+    setEditForm({
+      itemId: order.itemId,
+      quantity: order.quantity,
+      userId: order.userId,
+      status: order.status,
+    });
+  };
+
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditForm({ itemId: '', quantity: '', userId: '', status: '' });
+  };
+
+  const handleEditSave = async (id) => {
+    setError('');
+    if (
+      !editForm.itemId ||
+      !editForm.quantity ||
+      !editForm.userId ||
+      !editForm.status
+    ) {
+      setError('All fields are required');
+      return;
+    }
+    try {
+      await axios.put(
+        `http://localhost/api/orders/${id}`,
+        {
+          id,
+          itemId: Number(editForm.itemId),
+          quantity: Number(editForm.quantity),
+          status: editForm.status,
+          orderDate: new Date().toISOString(),
+          userId: Number(editForm.userId),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEditId(null);
+      setEditForm({
+        itemId: '',
+        quantity: '',
+        userId: '',
+        status: '',
+      });
+      fetchOrders();
+    } catch {
+      setError('Failed to update order');
     }
   };
 
@@ -141,6 +208,7 @@ export default function OrdersPage() {
               <TableCell>Item ID</TableCell>
               <TableCell>User ID</TableCell>
               <TableCell>Quantity</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -148,18 +216,97 @@ export default function OrdersPage() {
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell>{order.id}</TableCell>
-                <TableCell>{order.itemId}</TableCell>
-                <TableCell>{order.userId}</TableCell>
-                <TableCell>{order.quantity}</TableCell>
                 <TableCell>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => handleDelete(order.id)}
-                  >
-                    Delete
-                  </Button>
+                  {editId === order.id ? (
+                    <TextField
+                      name="itemId"
+                      value={editForm.itemId}
+                      onChange={handleEditChange}
+                      size="small"
+                    />
+                  ) : (
+                    order.itemId
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editId === order.id ? (
+                    <TextField
+                      name="userId"
+                      value={editForm.userId}
+                      onChange={handleEditChange}
+                      size="small"
+                    />
+                  ) : (
+                    order.userId
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editId === order.id ? (
+                    <TextField
+                      name="quantity"
+                      type="number"
+                      value={editForm.quantity}
+                      onChange={handleEditChange}
+                      size="small"
+                    />
+                  ) : (
+                    order.quantity
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editId === order.id ? (
+                    <TextField
+                      name="status"
+                      value={editForm.status}
+                      onChange={handleEditChange}
+                      size="small"
+                    />
+                  ) : (
+                    order.status
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editId === order.id ? (
+                    <>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleEditSave(order.id)}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        onClick={handleEditCancel}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleEdit(order)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(order.id)}
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

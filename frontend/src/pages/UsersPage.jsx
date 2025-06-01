@@ -26,6 +26,13 @@ export default function UsersPage() {
     role: '',
   });
   const [error, setError] = useState('');
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: '',
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -79,6 +86,63 @@ export default function UsersPage() {
     } catch {
       setError('Failed to delete user');
     }
+  };
+
+  const handleEditClick = (user) => {
+    setEditId(user.id);
+    setEditForm({
+      username: user.username,
+      email: user.email,
+      password: '',
+      role: user.role,
+    });
+    setError('');
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSave = async (id) => {
+    setError('');
+    if (!editForm.username || !editForm.email || !editForm.role) {
+      setError('Username, email, and role are required');
+      return;
+    }
+    try {
+      await axios.put(
+        `http://localhost/api/users/${id}`,
+        {
+          username: editForm.username,
+          email: editForm.email,
+          password: editForm.password, // send empty string if not changed
+          role: editForm.role,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEditId(null);
+      setEditForm({
+        username: '',
+        email: '',
+        password: '',
+        role: '',
+      });
+      fetchUsers();
+    } catch {
+      setError('Failed to update user');
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditForm({
+      username: '',
+      email: '',
+      password: '',
+      role: '',
+    });
   };
 
   return (
@@ -148,19 +212,81 @@ export default function UsersPage() {
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
+                {editId === user.id ? (
+                  <>
+                    <TableCell>
+                      <TextField
+                        name="username"
+                        value={editForm.username}
+                        onChange={handleEditChange}
+                        size="small"
+                        required
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        name="email"
+                        value={editForm.email}
+                        onChange={handleEditChange}
+                        size="small"
+                        required
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        name="role"
+                        value={editForm.role}
+                        onChange={handleEditChange}
+                        size="small"
+                        required
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleEditSave(user.id)}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        onClick={handleEditCancel}
+                      >
+                        Cancel
+                      </Button>
+                    </TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        sx={{ mr: 1 }}
+                        onClick={() => handleEditClick(user)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>
