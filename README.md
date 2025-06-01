@@ -45,14 +45,14 @@ docker-compose up -d --build
 
 ### Accessing Services
 
-All services are accessible through NGINX reverse proxy on `http://localhost:8080`:
+All services are accessible through NGINX reverse proxy on `http://localhost` (port 80):
 
-- **Centralized API Documentation**: `http://localhost:8080/swagger-ui/index.html` ⭐ **PRIMARY ACCESS POINT**
-- **API Overview**: `http://localhost:8080/` (redirects to Swagger UI)
-- **Items API**: `http://localhost:8080/api/items/`
-- **Orders API**: `http://localhost:8080/api/orders/`
-- **Users API**: `http://localhost:8080/api/users/`
-- **Auth API**: `http://localhost:8080/api/auth/`
+- **Centralized API Documentation**: `http://localhost/swagger-ui/index.html` ⭐ **PRIMARY ACCESS POINT**
+- **API Overview**: `http://localhost/` (redirects to Swagger UI)
+- **Items API**: `http://localhost/api/items/`
+- **Orders API**: `http://localhost/api/orders/`
+- **Users API**: `http://localhost/api/users/`
+- **Auth API**: `http://localhost/api/auth/`
 
 ### 📚 API Documentation
 
@@ -62,19 +62,19 @@ The project now includes a dedicated Swagger Gateway service that provides unifi
 
 #### 🎯 Primary Documentation Access
 
-- **Unified Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+- **Unified Swagger UI**: `http://localhost/swagger-ui/index.html`
   - Interactive documentation for all services in one place
   - Service selection dropdown for easy navigation
   - Unified API testing interface
 
 #### 📋 API Specifications
 
-- **Combined OpenAPI**: `http://localhost:8080/v3/api-docs`
+- **Combined OpenAPI**: `http://localhost/v3/api-docs`
 - **Individual Service Specs**:
-  - Items: `http://localhost:8080/docs/items`
-  - Orders: `http://localhost:8080/docs/orders`
-  - Users: `http://localhost:8080/docs/users`
-  - Auth: `http://localhost:8080/docs/auth`
+  - Items: `http://localhost/docs/items`
+  - Orders: `http://localhost/docs/orders`
+  - Users: `http://localhost/docs/users`
+  - Auth: `http://localhost/docs/auth`
 
 #### ✅ Key Benefits of Swagger Gateway
 
@@ -87,19 +87,19 @@ The project now includes a dedicated Swagger Gateway service that provides unifi
 
 ### Health Check Endpoints
 
-- **NGINX Health**: `http://localhost:8080/health`
-- **Swagger Gateway**: `http://localhost:8080/health` (via gateway controller)
+- **NGINX Health**: `http://localhost/health`
+- **Swagger Gateway**: `http://localhost/health` (via gateway controller)
 - **Individual Services Health**: Available through the centralized gateway
 
 ### 🚀 Getting Started with API Testing
 
 1. **Start the services**: `docker-compose up --build`
-2. **Open Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+2. **Open Swagger UI**: `http://localhost/swagger-ui/index.html`
 3. **Test individual service docs**:
-   - Items Service: `http://localhost:8080/docs/items`
-   - Orders Service: `http://localhost:8080/docs/orders`
-   - Users Service: `http://localhost:8080/docs/users`
-   - Auth Service: `http://localhost:8080/docs/auth`
+   - Items Service: `http://localhost/docs/items`
+   - Orders Service: `http://localhost/docs/orders`
+   - Users Service: `http://localhost/docs/users`
+   - Auth Service: `http://localhost/docs/auth`
 4. **Try the APIs** directly from the interface
 
 ## API Endpoints
@@ -149,19 +149,19 @@ The project now includes a dedicated Swagger Gateway service that provides unifi
 
 ```bash
 # Check API overview (redirects to Swagger)
-curl http://localhost:8080/
+curl http://localhost/
 
 # Check Swagger Gateway health
-curl http://localhost:8080/health
+curl http://localhost/health
 
 # Test individual services
-curl http://localhost:8080/api/auth/health
-curl http://localhost:8080/api/items/health
+curl http://localhost/api/auth/health
+curl http://localhost/api/items/health
 ```
 
 ### 2. Using Swagger UI (Recommended)
 
-1. Open `http://localhost:8080/swagger-ui/index.html`
+1. Open `http://localhost/swagger-ui/index.html`
 2. Select "Auth Service" from dropdown
 3. Use the `/api/auth/register` endpoint to create a user
 4. Use the `/api/auth/login` endpoint to get a JWT token
@@ -171,7 +171,7 @@ curl http://localhost:8080/api/items/health
 ### 3. Register a new user (via curl)
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/register \
+curl -X POST http://localhost/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "john_doe",
@@ -184,7 +184,7 @@ curl -X POST http://localhost:8080/api/auth/register \
 ### 4. Login and get JWT token
 
 ```bash
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "john_doe",
@@ -195,7 +195,7 @@ curl -X POST http://localhost:8080/api/auth/login \
 ### 5. Create an item
 
 ```bash
-curl -X POST http://localhost:8080/api/items/ \
+curl -X POST http://localhost/api/items/ \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Laptop",
@@ -208,7 +208,7 @@ curl -X POST http://localhost:8080/api/items/ \
 ### 6. Create an order
 
 ```bash
-curl -X POST http://localhost:8080/api/orders/ \
+curl -X POST http://localhost/api/orders/ \
   -H "Content-Type: application/json" \
   -d '{
     "itemId": 1,
@@ -299,8 +299,8 @@ The Swagger Gateway service automatically discovers and aggregates all microserv
 
 ## Monitoring and Health Checks
 
-- **Centralized Documentation**: Swagger Gateway at `http://localhost:8080/swagger-ui/index.html`
-- **NGINX Health**: `http://localhost:8080/health`
+- **Centralized Documentation**: Swagger Gateway at `http://localhost/swagger-ui/index.html`
+- **NGINX Health**: `http://localhost/health`
 - **Individual Service Health**: Available via `/api/{service}/health` endpoints
 - **Docker Health Checks**: PostgreSQL databases include health checks
 - **Service Dependencies**: Services start in proper dependency order
@@ -337,13 +337,13 @@ The Swagger Gateway service automatically discovers and aggregates all microserv
 
 4. **Service not responding**:
 
-   - Ensure you're using `http://localhost:8080` (not just `localhost`)
+   - Ensure you're using `http://localhost` (not just `localhost`)
    - Check all containers are running: `docker-compose ps`
    - Verify service health endpoints
 
 5. **Port conflicts**:
 
-   - Ensure port 8080 is available
+   - Ensure port 80 is available
    - Check if any other services are using ports 8081-8085
 
 6. **Database connection errors**:
@@ -354,16 +354,16 @@ The Swagger Gateway service automatically discovers and aggregates all microserv
 
 ```bash
 # Test Swagger Gateway service
-curl http://localhost:8080/health
+curl http://localhost/health
 
 # Test OpenAPI aggregation
-curl http://localhost:8080/v3/api-docs
+curl http://localhost/v3/api-docs
 
 # Test individual service specs through gateway (CORS-free)
-curl http://localhost:8080/docs/items
-curl http://localhost:8080/docs/orders
-curl http://localhost:8080/docs/users
-curl http://localhost:8080/docs/auth
+curl http://localhost/docs/items
+curl http://localhost/docs/orders
+curl http://localhost/docs/users
+curl http://localhost/docs/auth
 ```
 
 ### Logs
@@ -402,15 +402,15 @@ docker-compose down -v
 2. **Test Swagger Gateway:**
 
    ```bash
-   curl http://localhost:8080/swagger-ui/index.html
-   curl http://localhost:8080/health
+   curl http://localhost/swagger-ui/index.html
+   curl http://localhost/health
    ```
 
 3. **Check API availability:**
 
    ```bash
-   curl http://localhost:8080/api/items/health
-   curl http://localhost:8080/api/orders/health
+   curl http://localhost/api/items/health
+   curl http://localhost/api/orders/health
    ```
 
 4. **Test service connectivity:**
