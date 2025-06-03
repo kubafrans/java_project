@@ -67,7 +67,7 @@ export default function UsersPage() {
       return;
     }
     try {
-      await axios.post('http://localhost/api/users/', form, {
+      await axios.post('http://localhost/api/users', form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setForm({ username: '', email: '', password: '', role: '' });

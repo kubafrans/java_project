@@ -491,7 +491,3 @@ s:\Studia\Rok_03\Semestr_6\Projekty\Zaliczenie_Java\
 2. Add tests for new functionality
 3. Update documentation
 4. Submit pull request
-
-## License
-
-This project is for educational purposes as part of Java coursework.
